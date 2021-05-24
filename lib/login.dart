@@ -31,9 +31,20 @@ class _LogInScreen extends State<LogInScreen> {
           children: <Widget>[
             TextField(controller: _email),
             TextField(controller: _password),
-            ElevatedButton(onPressed: () {
-              _auth.signInWithEmailAndPassword(email: _email.text, password: _password.text);
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+            ElevatedButton(onPressed: () async {
+              try {
+                UserCredential uc = await _auth.signInWithEmailAndPassword(
+                    email: _email.text, password: _password.text);
+
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Home()));
+              } on FirebaseAuthException catch(e) {
+                if (e.code == 'user-not-found') {
+                  print('No user found for that email.');
+                } else if (e.code == 'wrong-password') {
+                  print('Wrong password provided for that user.');
+                }
+              }
             },
                 child: Text('Send')),
           ],
